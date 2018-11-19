@@ -27,7 +27,8 @@ namespace PACMod3
     INTERNATIONAL_PROSTAR_122,
     LEXUS_RX_450H,
     VEHICLE_4,
-    VEHICLE_5
+    VEHICLE_5,
+    VEHICLE_6
   };
 
   enum DimLevel
@@ -45,6 +46,25 @@ namespace PACMod3
     DIM_LEVEL_10 = 10,
     DIM_LEVEL_11 = 11,
     DIM_LEVEL_MAX = 12
+  };
+
+  enum ComponentType
+  {
+    COMPONENT_TYPE_PACMOD = 0,
+    COMPONENT_TYPE_PACMINI = 1,
+    COMPONENT_TYPE_PACMICRO = 2
+  };
+
+  enum ComponentFunction
+  {
+    COMPONENT_FUNC_PACMOD = 0,
+    COMPONENT_FUNC_STEERING_AND_STEERING_COLUMN = 1,
+    COMPONENT_FUNC_ACCELERATOR_AND_BRAKING = 2,
+    COMPONENT_FUNC_BRAKING = 3,
+    COMPONENT_FUNC_SHIFTING = 4,
+    COMPONENT_FUNC_STEERING = 5,
+    COMPONENT_FUNC_E_SHIFTER = 6,
+    COMPONENT_FUNC_WATCHDOG = 7
   };
 
   class Pacmod3TxMsg
@@ -128,6 +148,21 @@ namespace PACMod3
       bool subsystem_can_timeout;
       bool vehicle_can_timeout;
       uint16_t user_can_read_errors;
+
+      void parse(uint8_t *in);
+  };
+
+  class ComponentRptMsg :
+    public Pacmod3TxMsg
+  {
+    public:
+      static const int64_t CAN_ID;
+
+      ComponentType component_type;
+      ComponentFunction component_func;
+      uint8_t counter;
+      uint8_t complement;
+      bool config_fault;
 
       void parse(uint8_t *in);
   };
@@ -699,6 +734,7 @@ namespace PACMod3
       void encode(bool enable,
                   bool ignore_overrides,
                   bool clear_override,
+                  bool clear_faults,
                   bool cmd);
   };
 
@@ -709,6 +745,7 @@ namespace PACMod3
       void encode(bool enable,
                   bool ignore_overrides,
                   bool clear_override,
+                  bool clear_faults,
                   float cmd);
   };
 
@@ -719,6 +756,7 @@ namespace PACMod3
       void encode(bool enable,
                   bool ignore_overrides,
                   bool clear_override,
+                  bool clear_faults,
                   uint8_t cmd);
   };
 
@@ -809,6 +847,7 @@ namespace PACMod3
       void encode(bool enabled,
                   bool ignore_overrides,
                   bool clear_override,
+                  bool clear_faults,
                   float steer_pos,
                   float steer_spd);
   };
