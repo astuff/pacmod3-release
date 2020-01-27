@@ -1,45 +1,5 @@
 version: 2
 jobs:
-  dbc_validation:
-    docker:
-      - image: circleci/python:latest
-    steps:
-      - checkout
-      - run:
-          name: Set Up Container
-          command: |
-            pip install --user cantools
-      - run:
-          name: Validate DBC
-          command: |
-            /home/circleci/.local/bin/cantools dump dbc/as_pacmod_*.dbc
-
-  indigo:
-    docker:
-      - image: autonomoustuff/docker-builds:indigo-ros-base
-    steps:
-      - checkout
-      - run:
-          name: Set Up Container
-          command: |
-            apt-get update -qq
-            source `find /opt/ros -name setup.bash | sort | head -1`
-            rosdep install --from-paths . --ignore-src -y
-            cd ..
-            catkin init
-            catkin config --extend /opt/ros/$ROS_DISTRO
-      - run:
-          name: Build
-          command: |
-            cd ..
-            catkin build
-      - run:
-          name: Run Tests
-          command: |
-            cd ..
-            catkin run_tests
-    working_directory: ~/src
-
   kinetic:
     docker:
       - image: autonomoustuff/docker-builds:kinetic-ros-base
@@ -50,6 +10,8 @@ jobs:
           command: |
             apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
+            mkdir pacmod3 && mv `find -maxdepth 1 -not -name . -not -name pacmod3` pacmod3/
+            git clone https://github.com/astuff/astuff_sensor_msgs
             rosdep install --from-paths . --ignore-src -y
             cd ..
             catkin init
@@ -60,36 +22,18 @@ jobs:
             cd ..
             catkin build
       - run:
-          name: Run Tests
+          name: Lint
           command: |
-            cd ..
-            catkin run_tests
-    working_directory: ~/src
-
-  lunar:
-    docker:
-      - image: autonomoustuff/docker-builds:lunar-ros-base
-    steps:
-      - checkout
-      - run:
-          name: Set Up Container
-          command: |
-            apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
-            rosdep install --from-paths . --ignore-src -y
             cd ..
-            catkin init
-            catkin config --extend /opt/ros/$ROS_DISTRO
-      - run:
-          name: Build
-          command: |
-            cd ..
-            catkin build
+            catkin build pacmod3 --no-deps --make-args roslint
       - run:
           name: Run Tests
           command: |
+            source `find /opt/ros -name setup.bash | sort | head -1`
             cd ..
-            catkin run_tests
+            catkin run_tests --no-deps pacmod3
+            catkin_test_results
     working_directory: ~/src
 
   melodic:
@@ -102,6 +46,8 @@ jobs:
           command: |
             apt-get update -qq
             source `find /opt/ros -name setup.bash | sort | head -1`
+            mkdir pacmod3 && mv `find -maxdepth 1 -not -name . -not -name pacmod3` pacmod3/
+            git clone https://github.com/astuff/astuff_sensor_msgs
             rosdep install --from-paths . --ignore-src -y
             cd ..
             catkin init
@@ -109,29 +55,26 @@ jobs:
       - run:
           name: Build
           command: |
+            source `find /opt/ros -name setup.bash | sort | head -1`
             cd ..
             catkin build
       - run:
-          name: Run Tests
+          name: Lint
           command: |
             cd ..
-            catkin run_tests
+            catkin build pacmod3 --no-deps --make-args roslint
+      - run:
+          name: Run Tests
+          command: |
+            source `find /opt/ros -name setup.bash | sort | head -1`
+            cd ..
+            catkin run_tests --no-deps pacmod3
+            catkin_test_results
     working_directory: ~/src
 
 workflows:
   version: 2
   ros_build:
     jobs:
-      - dbc_validation
-      - indigo:
-          requires:
-            - dbc_validation
-      - kinetic:
-          requires:
-            - dbc_validation
-      - lunar:
-          requires:
-            - dbc_validation
-      - melodic:
-          requires:
-            - dbc_validation
+      - kinetic
+      - melodic
