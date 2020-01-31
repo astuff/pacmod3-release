@@ -1,3 +1,26 @@
+## pacmod3 (dashing) - 1.3.1-1
+
+The packages in the `pacmod3` repository were released into the `dashing` distro by running `/usr/bin/bloom-release --rosdistro dashing --track dashing pacmod3` on `Fri, 31 Jan 2020 14:51:39 -0000`
+
+The `pacmod3` package was released.
+
+Version of package(s) in repository `pacmod3`:
+
+- upstream repository: https://github.com/astuff/pacmod3.git
+- release repository: https://github.com/astuff/pacmod3-release.git
+- rosdistro version: `1.3.0-1`
+- old version: `1.3.0-1`
+- new version: `1.3.1-1`
+
+Versions of tools used:
+
+- bloom version: `0.9.0`
+- catkin_pkg version: `0.4.16`
+- rosdep version: `0.18.0`
+- rosdistro version: `0.8.0`
+- vcstools version: `0.1.42`
+
+
 ## pacmod3 (dashing) - 1.3.0-1
 
 The packages in the `pacmod3` repository were released into the `dashing` distro by running `/usr/bin/bloom-release --track dashing --rosdistro dashing pacmod3 --edit` on `Mon, 27 Jan 2020 21:26:00 -0000`
